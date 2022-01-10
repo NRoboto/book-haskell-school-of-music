@@ -25,13 +25,16 @@ ms o d = note d (MS, o)
 fromBlues :: Music BluesPitch -> Music Pitch
 fromBlues (Prim (Note d (bpc, o))) =
     let bluesToPitchClass :: BluesPitchClass -> PitchClass
-        bluesToPitchClass Ro = C
-        bluesToPitchClass Mt = Ef
-        bluesToPitchClass Fo = F
-        bluesToPitchClass Fi = G
-        bluesToPitchClass MS = Bf
+        bluesToPitchClass bpc' = case bpc' of Ro -> C; Mt -> Ef; Fo -> F; Fi -> G; MS -> Bf
     in note d (bluesToPitchClass bpc, o)
 fromBlues (Prim (Rest d)) = rest d
 fromBlues (m :+: m') = fromBlues m :+: fromBlues m'
 fromBlues (m :=: m') = fromBlues m :=: fromBlues m'
 fromBlues (Modify c m) = Modify c $ fromBlues m
+
+transM :: AbsPitch -> Music Pitch -> Music Pitch
+transM ap (Prim (Note d p)) = note d $ trans ap p
+transM ap (Prim (Rest d)) = rest d
+transM ap (m1 :+: m2) = transM ap m1 :+: transM ap m2
+transM ap (m1 :=: m2) = transM ap m1 :=: transM ap m2
+transM ap (Modify c m) = transM ap m
