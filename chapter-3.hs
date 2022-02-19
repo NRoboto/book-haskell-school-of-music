@@ -121,3 +121,41 @@ chrom p1 p2 = foldr ((:+:) . note qn . pitch) (rest 0) absPitchRange
               where absPitches = (absPitch p1, absPitch p2)
                     rangeDirection = if uncurry (>) absPitches then -1 else if uncurry (==) absPitches then 0 else 1
                     absPitchRange = [fst absPitches, fst absPitches + rangeDirection..snd absPitches]
+
+-- Exercise 3.12
+mkScale :: Pitch -> [Int] -> Music Pitch 
+mkScale p ints = foldl (flip $ (:+:) . note qn . trans (absPitch p) . pitch) (rest 0) pitchOffsets
+                 where pitchOffsets = foldl (\acc x -> (head acc + x):acc) [0] ints
+
+-- Exercise 3.13
+data MajorScale = Ionian'
+                  | Dorian'
+                  | Phrygian'
+                  | Lydian'
+                  | Mixolydian'
+                  | Aeolian'
+                  | Locrian'
+
+intsForIonian = [2, 2, 1, 2, 2, 2, 1]
+shiftList :: Int -> [a] -> [a]
+shiftList n xs = take (length xs) $ drop n $ cycle xs
+
+genScaleForPitchClass :: PitchClass -> Music Pitch
+genScaleForPitchClass pc = mkScale (pc, 4) $ shiftList pcOffset intsForIonian
+                           where pcOffset = absPitch (pc, 4) - absPitch (C, 4)
+
+genScale :: MajorScale -> Music Pitch 
+genScale Ionian' = genScaleForPitchClass C
+genScale Dorian' = genScaleForPitchClass D
+genScale Phrygian' = genScaleForPitchClass E
+genScale Lydian' = genScaleForPitchClass F 
+genScale Mixolydian' = genScaleForPitchClass G 
+genScale Aeolian' = genScaleForPitchClass A
+genScale Locrian' = genScaleForPitchClass B
+
+-- Exercise 3.15
+encrypt :: String -> String
+encrypt = map (toEnum . (+) 1 . fromEnum)
+
+decrypt :: String -> String 
+decrypt = map (toEnum . flip (-) 1 . fromEnum)
