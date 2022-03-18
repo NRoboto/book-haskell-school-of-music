@@ -35,3 +35,29 @@ palin = isPalindrome . map musicToPitchClass . filter isNote . lineToList
       where isPalindrome [] = True
             isPalindrome [_] = True
             isPalindrome l@(x:xs) = (x == last l) && isPalindrome (init xs)
+
+-- End Exercise
+
+trill :: Int -> Dur -> Music Pitch -> Music Pitch 
+trill i sDur (Prim (Note tDur p)) = if sDur >= tDur then note tDur p else note (tDur - sDur) p :+: trill (negate i) sDur (note (tDur - sDur) $ trans i p)
+trill i d (Modify (Tempo r) m) = tempo r $ trill i (d*r) m
+trill i d (Modify c m) = Modify c (trill i d m)
+trill _ _ _ = error "trill: Input must be a single note"
+
+trilln :: Int -> Int -> Music Pitch -> Music Pitch
+trilln i nTimes m = trill i (dur m/fromIntegral nTimes) m
+
+roll :: Dur -> Music Pitch -> Music Pitch
+roll = trill 0
+
+funkGrove :: Music Pitch 
+funkGrove = let p1 = perc LowTom qn 
+                p2 = perc AcousticSnare en
+            in tempo 3 $ cut 8 $ forever ((p1 :+: qnr :+: p2 :+: qnr :+: p2 :+: p1 :+: p1 :+: qnr :+:p2 :+: enr) :=: roll en (perc ClosedHiHat 2))
+
+-- Exercise 6.7
+allPercusionSounds :: Dur -> Music Pitch 
+allPercusionSounds d = line $ map ((`perc` d) . toEnum) [0..46]
+
+-- End exercise
+
