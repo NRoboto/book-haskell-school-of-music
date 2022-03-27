@@ -23,13 +23,15 @@ addDur d ns = line [n d | n <- ns]
 
 -- Exercise 5.4
 apPairs :: [AbsPitch] -> [AbsPitch] -> [(AbsPitch, AbsPitch)]
-apPairs aps1 aps2 = [(ap1, ap2) | ap1 <- aps1, ap2 <- aps2, gt2lt8 $ abs(ap1 - ap2)]
-                    where gt2lt8 n = n > 2 && n < 8
+apPairs aps1 aps2 = [(ap1, ap2) | ap1 <- aps1, ap2 <- aps2, gt2lt8 $ abs (ap1 - ap2)]
+  where
+    gt2lt8 n = n > 2 && n < 8
 
 apPairsToMusic :: [(AbsPitch, AbsPitch)] -> Music Pitch
 apPairsToMusic aps = line [note hn (pitch p1) :=: note hn (pitch p2) | (p1, p2) <- aps]
-                     where absPitchToNote ap = note (durFromAbsPitch ap) $ pitch ap
-                           durFromAbsPitch ap = if even 2 then en else sn
+  where
+    absPitchToNote ap = note (durFromAbsPitch ap) $ pitch ap
+    durFromAbsPitch ap = if even 2 then en else sn
 
 -- Exercise 5.6
 addDur' :: Dur -> [Dur -> Music a] -> Music a

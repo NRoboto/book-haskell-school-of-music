@@ -1,12 +1,12 @@
-import Euterpea;
+import Euterpea
 
 length' :: [a] -> Integer
 length' [] = 0
-length' (_:xs) = 1 + length' xs
+length' (_ : xs) = 1 + length' xs
 
 map' :: (a -> b) -> [a] -> [b]
 map' f [] = []
-map' f (x:xs) = f x : map' f xs
+map' f (x : xs) = f x : map' f xs
 
 toAbsPitch :: [Pitch] -> [AbsPitch]
 toAbsPitch = map' absPitch
@@ -20,20 +20,21 @@ f2 = map rest
 
 f3 :: [Music Pitch] -> [Music Pitch]
 f3 [] = []
-f3 (Prim (Note dur p):xs) = (note (dur/2) p :+: rest (dur/2)) : f3 xs
-f3 (Prim (Rest dur):xs) = rest dur : f3 xs
+f3 (Prim (Note dur p) : xs) = (note (dur / 2) p :+: rest (dur / 2)) : f3 xs
+f3 (Prim (Rest dur) : xs) = rest dur : f3 xs
+
 -- End exercise
 
 (+|+) :: [a] -> [a] -> [a]
 (+|+) [] ys = ys
-(+|+) (x:xs) ys = x : (xs +|+ ys)
+(+|+) (x : xs) ys = x : (xs +|+ ys)
 
-(!!!) :: Pitch -> Pitch -> Pitch 
+(!!!) :: Pitch -> Pitch -> Pitch
 (!!!) = max
 
 fold' :: (a -> b -> b) -> b -> [a] -> b
 fold' op init [] = init
-fold' op init (x:xs) = x `op` fold' op init xs
+fold' op init (x : xs) = x `op` fold' op init xs
 
 line, chord :: [Music a] -> Music a
 line = fold' (:+:) (rest 0)
@@ -46,9 +47,10 @@ maxPitch1 :: [Pitch] -> Pitch
 maxPitch1 = foldr1 (!!!)
 
 reverse' :: [a] -> [a]
-reverse' xs = let rev acc [] = acc
-                  rev acc (x:xs) = rev (x:acc) xs
-              in rev [] xs
+reverse' xs =
+  let rev acc [] = acc
+      rev acc (x : xs) = rev (x : acc) xs
+   in rev [] xs
 
 reverse'' :: [a] -> [a]
 reverse'' = foldl (flip (:)) []
@@ -56,7 +58,8 @@ reverse'' = foldl (flip (:)) []
 -- Exercise 3.4
 applyEach :: [a -> b] -> a -> [b]
 applyEach fs a = foldr applyOp [] fs
-                 where applyOp f xs = f a : xs
+  where
+    applyOp f xs = f a : xs
 
 -- Exercise 3.5
 applyAll :: [a -> a] -> a -> a
@@ -80,33 +83,38 @@ type IntegerPair = (Integer, Integer)
 
 pairAndOne :: [Integer] -> [IntegerPair]
 pairAndOne = map toPairAndOne
-             where toPairAndOne x = (x, x + 1)
+  where
+    toPairAndOne x = (x, x + 1)
 
 addEachPair :: [IntegerPair] -> [Integer]
 addEachPair = map sumPair
-              where sumPair (x, y) = x + y
+  where
+    sumPair (x, y) = x + y
 
 addPairsPointwise :: [IntegerPair] -> IntegerPair
 addPairsPointwise = foldr addPointwise (0, 0)
-                    where addPointwise (x1, x2) (y1, y2) = (x1 + y1, x2 + y2)
+  where
+    addPointwise (x1, x2) (y1, y2) = (x1 + y1, x2 + y2)
 
 -- Exercise 3.9
 fuse :: [Dur] -> [Dur -> Music a] -> [Music a]
 fuse [] [] = []
 fuse _ [] = error "fuse: Lists have unequal length"
 fuse [] _ = error "fuse: Lists have unequal length"
-fuse (d:ds) (f:fs) = f d : fuse ds fs
+fuse (d : ds) (f : fs) = f d : fuse ds fs
 
 -- Exercise 3.10
 maxAbsPitch :: [AbsPitch] -> AbsPitch
 maxAbsPitch [] = error "maxAbsPitch: Empty list"
 maxAbsPitch xs = mAbs 0 xs
-              where mAbs curr (x:xs) = if x > curr then mAbs x xs else mAbs curr xs
-                    mAbs curr [] = curr
+  where
+    mAbs curr (x : xs) = if x > curr then mAbs x xs else mAbs curr xs
+    mAbs curr [] = curr
 
 maxAbsPitch' :: [AbsPitch] -> AbsPitch
 maxAbsPitch' = foldr1 greaterPitch
-               where greaterPitch x y = if x > y then x else y
+  where
+    greaterPitch x y = if x > y then x else y
 
 maxAbsPitch'' :: [AbsPitch] -> AbsPitch
 maxAbsPitch'' = foldr1 max
@@ -115,41 +123,47 @@ minAbsPitch'' :: [AbsPitch] -> AbsPitch
 minAbsPitch'' = foldr1 min
 
 -- Exercise 3.11
--- |Chromatic scale between pitches p1 and p2, notes are separated by one semitone (one absolute pitch)
-chrom :: Pitch -> Pitch -> Music Pitch 
+
+-- | Chromatic scale between pitches p1 and p2, notes are separated by one semitone (one absolute pitch)
+chrom :: Pitch -> Pitch -> Music Pitch
 chrom p1 p2 = foldr ((:+:) . note qn . pitch) (rest 0) absPitchRange
-              where absPitches = (absPitch p1, absPitch p2)
-                    rangeDirection = if uncurry (>) absPitches then -1 else if uncurry (==) absPitches then 0 else 1
-                    absPitchRange = [fst absPitches, fst absPitches + rangeDirection..snd absPitches]
+  where
+    absPitches = (absPitch p1, absPitch p2)
+    rangeDirection = if uncurry (>) absPitches then -1 else if uncurry (==) absPitches then 0 else 1
+    absPitchRange = [fst absPitches, fst absPitches + rangeDirection .. snd absPitches]
 
 -- Exercise 3.12
-mkScale :: Pitch -> [Int] -> Music Pitch 
+mkScale :: Pitch -> [Int] -> Music Pitch
 mkScale p ints = foldl (flip $ (:+:) . note qn . trans (absPitch p) . pitch) (rest 0) pitchOffsets
-                 where pitchOffsets = foldl (\acc x -> (head acc + x):acc) [0] ints
+  where
+    pitchOffsets = foldl (\acc x -> (head acc + x) : acc) [0] ints
 
 -- Exercise 3.13
-data MajorScale = Ionian'
-                  | Dorian'
-                  | Phrygian'
-                  | Lydian'
-                  | Mixolydian'
-                  | Aeolian'
-                  | Locrian'
+data MajorScale
+  = Ionian'
+  | Dorian'
+  | Phrygian'
+  | Lydian'
+  | Mixolydian'
+  | Aeolian'
+  | Locrian'
 
 intsForIonian = [2, 2, 1, 2, 2, 2, 1]
+
 shiftList :: Int -> [a] -> [a]
 shiftList n xs = take (length xs) $ drop n $ cycle xs
 
 genScaleForPitchClass :: PitchClass -> Music Pitch
 genScaleForPitchClass pc = mkScale (pc, 4) $ shiftList pcOffset intsForIonian
-                           where pcOffset = absPitch (pc, 4) - absPitch (C, 4)
+  where
+    pcOffset = absPitch (pc, 4) - absPitch (C, 4)
 
-genScale :: MajorScale -> Music Pitch 
+genScale :: MajorScale -> Music Pitch
 genScale Ionian' = genScaleForPitchClass C
 genScale Dorian' = genScaleForPitchClass D
 genScale Phrygian' = genScaleForPitchClass E
-genScale Lydian' = genScaleForPitchClass F 
-genScale Mixolydian' = genScaleForPitchClass G 
+genScale Lydian' = genScaleForPitchClass F
+genScale Mixolydian' = genScaleForPitchClass G
 genScale Aeolian' = genScaleForPitchClass A
 genScale Locrian' = genScaleForPitchClass B
 
@@ -157,5 +171,5 @@ genScale Locrian' = genScaleForPitchClass B
 encrypt :: String -> String
 encrypt = map (toEnum . (+) 1 . fromEnum)
 
-decrypt :: String -> String 
+decrypt :: String -> String
 decrypt = map (toEnum . flip (-) 1 . fromEnum)

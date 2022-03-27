@@ -1,4 +1,4 @@
-import Euterpea ( cut, dur, remove, Dur, Music, Primitive(..) )
+import Euterpea (Dur, Music, Primitive (..), cut, dur, remove)
 
 -- Exercise 7.2
 data Color = Red | Green | Blue
@@ -11,7 +11,7 @@ instance Eq Color where
 
 instance Ord Color where
   Red <= Green = True
-  Red <= Blue = True 
+  Red <= Blue = True
   Green <= Blue = True
   x <= y = x == y
 
@@ -54,6 +54,6 @@ instance Temporal (Primitive a) where
 
 -- Exercise 7.4
 instance (Enum a, Bounded a, Eq b) => Eq (a -> b) where
-  f == g = all (\x -> f x == g x) [minBound..maxBound]
+  f == g = all (\x -> f x == g x) [minBound .. maxBound]
 
 -- End exercise
